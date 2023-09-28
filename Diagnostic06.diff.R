@@ -4,129 +4,133 @@
 #BiocManager::install("limma")
 #install.packages("pheatmap")
 
-#ÒıÓÃ°ü
+#å¼•ç”¨åŒ…
 library(limma)
 library(pheatmap)
 
-inputFile="merge.txt"       #ÊäÈëÎÄ¼ş
-logFCfilter=2               #logFC¹ıÂËãĞÖµ
-adj.P.Val.Filter=0.05       #½ÃÕıºópÖµãĞÖµ
-setwd("C:\\biowolf\\Diagnostic\\06.diff")      #ÉèÖÃ¹¤×÷Ä¿Â¼
+inputFile="merge.txt"       #è¾“å…¥æ–‡ä»¶
+logFCfilter=2               #logFCè¿‡æ»¤é˜ˆå€¼
+adj.P.Val.Filter=0.05       #çŸ«æ­£åpå€¼é˜ˆå€¼
+setwd("C:\\biowolf\\Diagnostic\\06.diff")      #è®¾ç½®å·¥ä½œç›®å½•
 
-#¶ÁÈ¡ÊäÈëÎÄ¼ş£¬²¢¶ÔÊäÈëÎÄ¼şÕûÀí
-#Ê¹ÓÃread.tableº¯Êı´ÓinputFileÖĞ¶ÁÈ¡Êı¾İ¡£ÆäÖĞ£º
-#header=T£ºÎÄ¼şµÄµÚÒ»ĞĞÊÇÁĞÃû¡£
-#sep="\t"£º×Ö¶ÎÊÇÓÃÖÆ±í·û£¨tab£©·Ö¸ôµÄ¡£
-#check.names=F£º²»ĞŞ¸ÄÁĞÃûÒÔÊ¹Æä±äÎª±ê×¼µÄR±äÁ¿Ãû£¨ÀıÈç£¬Èç¹ûÁĞÃû°üº¬¿Õ¸ñ»òÌØÊâ×Ö·û£¬RÍ¨³£»áĞŞ¸ÄËüÃÇ£©¡£
+#è¯»å–è¾“å…¥æ–‡ä»¶ï¼Œå¹¶å¯¹è¾“å…¥æ–‡ä»¶æ•´ç†
+#ä½¿ç”¨read.tableå‡½æ•°ä»inputFileä¸­è¯»å–æ•°æ®ã€‚å…¶ä¸­ï¼š
+#header=Tï¼šæ–‡ä»¶çš„ç¬¬ä¸€è¡Œæ˜¯åˆ—åã€‚
+#sep="\t"ï¼šå­—æ®µæ˜¯ç”¨åˆ¶è¡¨ç¬¦ï¼ˆtabï¼‰åˆ†éš”çš„ã€‚
+#check.names=Fï¼šä¸ä¿®æ”¹åˆ—åä»¥ä½¿å…¶å˜ä¸ºæ ‡å‡†çš„Rå˜é‡åï¼ˆä¾‹å¦‚ï¼Œå¦‚æœåˆ—ååŒ…å«ç©ºæ ¼æˆ–ç‰¹æ®Šå­—ç¬¦ï¼ŒRé€šå¸¸ä¼šä¿®æ”¹å®ƒä»¬ï¼‰ã€‚
 rt=read.table(inputFile, header=T, sep="\t", check.names=F)
-#½«rt×ª»»ÎªÒ»¸ö¾ØÕó¡£
+#å°†rtè½¬æ¢ä¸ºä¸€ä¸ªçŸ©é˜µã€‚
 rt=as.matrix(rt)
-#½«rt¾ØÕóµÄµÚÒ»ÁĞÉèÖÃÎªĞĞÃû¡£
+#å°†rtçŸ©é˜µçš„ç¬¬ä¸€åˆ—è®¾ç½®ä¸ºè¡Œåã€‚
 rownames(rt)=rt[,1]
-#ÌáÈ¡rt¾ØÕóµÄµÚ¶şÁĞµ½×îºóÒ»ÁĞ£¬²¢½«½á¹û±£´æÔÚexpÖĞ¡£
+#æå–rtçŸ©é˜µçš„ç¬¬äºŒåˆ—åˆ°æœ€åä¸€åˆ—ï¼Œå¹¶å°†ç»“æœä¿å­˜åœ¨expä¸­ã€‚
 exp=rt[,2:ncol(rt)]
-#ÎªÏÂÒ»²½µÄÊı¾İ¾ØÕó´´½¨Î¬¶ÈÃû³Æ¡£ÕâÀï»ñÈ¡expµÄĞĞÃûºÍÁĞÃû£¬²¢½«ËüÃÇ·ÅÈëÒ»¸öÁĞ±íÖĞ£¬±£´æÔÚdimnamesÖĞ¡£
+#ä¸ºä¸‹ä¸€æ­¥çš„æ•°æ®çŸ©é˜µåˆ›å»ºç»´åº¦åç§°ã€‚è¿™é‡Œè·å–expçš„è¡Œåå’Œåˆ—åï¼Œå¹¶å°†å®ƒä»¬æ”¾å…¥ä¸€ä¸ªåˆ—è¡¨ä¸­ï¼Œä¿å­˜åœ¨dimnamesä¸­ã€‚
 dimnames=list(rownames(exp),colnames(exp))
-#½«expÔÙ´Î×ª»»ÎªÒ»¸öÊıÖµ¾ØÕó£¨È·±£ËùÓĞÔªËØ¶¼ÊÇÊı×Ö£©£¬²¢ÎªÕâ¸öĞÂ¾ØÕóÉèÖÃĞĞÃûºÍÁĞÃû¡£
-#ÕâÑù×öÊÇÎªÁËÈ·±£ËùÓĞµÄÔªËØ¶¼ÊÇÊıÖµÀàĞÍ¡£
+#å°†expå†æ¬¡è½¬æ¢ä¸ºä¸€ä¸ªæ•°å€¼çŸ©é˜µï¼ˆç¡®ä¿æ‰€æœ‰å…ƒç´ éƒ½æ˜¯æ•°å­—ï¼‰ï¼Œå¹¶ä¸ºè¿™ä¸ªæ–°çŸ©é˜µè®¾ç½®è¡Œåå’Œåˆ—åã€‚
+#è¿™æ ·åšæ˜¯ä¸ºäº†ç¡®ä¿æ‰€æœ‰çš„å…ƒç´ éƒ½æ˜¯æ•°å€¼ç±»å‹ã€‚
 data=matrix(as.numeric(as.matrix(exp)),nrow=nrow(exp),dimnames=dimnames)
-#Ó¦ÓÃaverepsº¯Êı£¨À´×Ôlimma°ü£©¶ÔÊı¾İ½øĞĞ´¦Àí¡£Õâ¸öº¯ÊıÍ¨³£ÓÃÓÚÉúÎïĞÅÏ¢Ñ§ÖĞ£¬
-#µ±ÓĞ¶à¸öÌ½Õë»òÕß±êÇ©¶ÔÓ¦Í¬Ò»¸ö»ùÒòÊ±£¬Ëü¿ÉÒÔºÏ²¢ÕâĞ©ĞĞ²¢¼ÆËãÆ½¾ùÖµ¡£
+#åº”ç”¨averepså‡½æ•°ï¼ˆæ¥è‡ªlimmaåŒ…ï¼‰å¯¹æ•°æ®è¿›è¡Œå¤„ç†ã€‚è¿™ä¸ªå‡½æ•°é€šå¸¸ç”¨äºç”Ÿç‰©ä¿¡æ¯å­¦ä¸­ï¼Œ
+#å½“æœ‰å¤šä¸ªæ¢é’ˆæˆ–è€…æ ‡ç­¾å¯¹åº”åŒä¸€ä¸ªåŸºå› æ—¶ï¼Œå®ƒå¯ä»¥åˆå¹¶è¿™äº›è¡Œå¹¶è®¡ç®—å¹³å‡å€¼ã€‚
 data=avereps(data)
-#½ö±£ÁôdataÖĞÆ½¾ùÖµ´óÓÚ0µÄĞĞ£¬É¸Ñ¡³öÓĞÒ»¶¨±í´ïÁ¿µÄ»ùÒò¡£
+#ä»…ä¿ç•™dataä¸­å¹³å‡å€¼å¤§äº0çš„è¡Œï¼Œç­›é€‰å‡ºæœ‰ä¸€å®šè¡¨è¾¾é‡çš„åŸºå› ã€‚
 data=data[rowMeans(data)>0,]
 
-#¶ÁÈ¡Ä¿Â¼ÏÂËùÓĞ"s1.txt"½áÎ²µÄÎÄ¼ş
+#è¯»å–ç›®å½•ä¸‹æ‰€æœ‰"s1.txt"ç»“å°¾çš„æ–‡ä»¶
 sampleName1=c()
 files=dir()
 files=grep("s1.txt$", files, value=T)
 for(file in files){
-    rt=read.table(file, header=F, sep="\t", check.names=F)      #¶ÁÈ¡ÊäÈëÎÄ¼ş
-    geneNames=as.vector(rt[,1])      #ÌáÈ¡»ùÒòÃû³Æ
-    uniqGene=unique(geneNames)       #»ùÒòÈ¡unique
+    rt=read.table(file, header=F, sep="\t", check.names=F)      #è¯»å–è¾“å…¥æ–‡ä»¶
+    geneNames=as.vector(rt[,1])      #æå–åŸºå› åç§°
+    uniqGene=unique(geneNames)       #åŸºå› å–unique
     sampleName1=c(sampleName1, uniqGene)
 }
 
-#¶ÁÈ¡Ä¿Â¼ÏÂËùÓĞ"s2.txt"½áÎ²µÄÎÄ¼ş
+#è¯»å–ç›®å½•ä¸‹æ‰€æœ‰"s2.txt"ç»“å°¾çš„æ–‡ä»¶
 sampleName2=c()
 files=dir()
 files=grep("s2.txt$", files, value=T)
 for(file in files){
-    rt=read.table(file, header=F, sep="\t", check.names=F)      #¶ÁÈ¡ÊäÈëÎÄ¼ş
-    geneNames=as.vector(rt[,1])      #ÌáÈ¡»ùÒòÃû³Æ
-    uniqGene=unique(geneNames)       #»ùÒòÈ¡unique
+    rt=read.table(file, header=F, sep="\t", check.names=F)      #è¯»å–è¾“å…¥æ–‡ä»¶
+    geneNames=as.vector(rt[,1])      #æå–åŸºå› åç§°
+    uniqGene=unique(geneNames)       #åŸºå› å–unique
     sampleName2=c(sampleName2, uniqGene)
 }
 
-#ÌáÈ¡ÊµÑé×éºÍ¶ÔÕÕ×éµÄÊı¾İ
-conData=data[,sampleName1]
-treatData=data[,sampleName2]
+#æå–å®éªŒç»„å’Œå¯¹ç…§ç»„çš„æ•°æ®
+valid_sampleName1 <- sampleName1[sampleName1 %in% colnames(data)]
+valid_sampleName2 <- sampleName2[sampleName2 %in% colnames(data)]
+#è®©ä¸å­˜åœ¨ä¸merge.txté‡Œçš„samplenameè¿›è¡Œèˆå¼ƒï¼Œè®©å­˜åœ¨çš„ç»§ç»­è¿è¡Œä¸‹å»ï¼Œä¸è®©ä»£ç æŠ¥é”™
+# ç°åœ¨ï¼Œä½¿ç”¨è¿™äº›æœ‰æ•ˆçš„åˆ—åæå–æ•°æ®
+conData <- data[, valid_sampleName1]
+treatData <- data[, valid_sampleName2]
 data=cbind(conData,treatData)
 conNum=ncol(conData)
 treatNum=ncol(treatData)
 
-#²îÒì·ÖÎö
-#´´½¨ÁËÒ»¸ö×Ö·ûÏòÁ¿£¬ÆäÖĞ"con"ÖØ¸´conNum´Î£¬´ú±í¶ÔÕÕ×é£»¶ø"treat"ÖØ¸´treatNum´Î£¬´ú±í´¦Àí×é¡£
+#å·®å¼‚åˆ†æ
+#åˆ›å»ºäº†ä¸€ä¸ªå­—ç¬¦å‘é‡ï¼Œå…¶ä¸­"con"é‡å¤conNumæ¬¡ï¼Œä»£è¡¨å¯¹ç…§ç»„ï¼›è€Œ"treat"é‡å¤treatNumæ¬¡ï¼Œä»£è¡¨å¤„ç†ç»„ã€‚
 Type=c(rep("con",conNum),rep("treat",treatNum))
-#½¨Á¢ÁËÒ»¸öÉè¼Æ¾ØÕó¡£¸Ã¾ØÕó½«ÓÃÓÚÏßĞÔÄ£ĞÍÄâºÏ¡£~0±íÊ¾Ä£ĞÍÖĞÃ»ÓĞ½Ø¾àÏî¡£factor(Type)½«×Ö·ûÏòÁ¿Type×ª»¯ÎªÒò×Ó²¢ÔÚÄ£ĞÍÖĞÓÃ×÷Ô¤²â±äÁ¿¡£
+#å»ºç«‹äº†ä¸€ä¸ªè®¾è®¡çŸ©é˜µã€‚è¯¥çŸ©é˜µå°†ç”¨äºçº¿æ€§æ¨¡å‹æ‹Ÿåˆã€‚~0è¡¨ç¤ºæ¨¡å‹ä¸­æ²¡æœ‰æˆªè·é¡¹ã€‚factor(Type)å°†å­—ç¬¦å‘é‡Typeè½¬åŒ–ä¸ºå› å­å¹¶åœ¨æ¨¡å‹ä¸­ç”¨ä½œé¢„æµ‹å˜é‡ã€‚
 design <- model.matrix(~0+factor(Type))
-#ÎªÉè¼Æ¾ØÕóµÄÁĞÃüÃû
+#ä¸ºè®¾è®¡çŸ©é˜µçš„åˆ—å‘½å
 colnames(design) <- c("con","treat")
-#Ê¹ÓÃlimma°üµÄlmFitº¯Êı½«data£¨¼´»ùÒò±í´ïÊı¾İ£©ÓëÉè¼Æ¾ØÕó½øĞĞÏßĞÔÄâºÏ¡£
+#ä½¿ç”¨limmaåŒ…çš„lmFitå‡½æ•°å°†dataï¼ˆå³åŸºå› è¡¨è¾¾æ•°æ®ï¼‰ä¸è®¾è®¡çŸ©é˜µè¿›è¡Œçº¿æ€§æ‹Ÿåˆã€‚
 fit <- lmFit(data,design)
-#½¨Á¢¶Ô±È¾ØÕó£¬ÓÃÓÚ±È½Ï"treat"ºÍ"con"µÄ²îÒì
+#å»ºç«‹å¯¹æ¯”çŸ©é˜µï¼Œç”¨äºæ¯”è¾ƒ"treat"å’Œ"con"çš„å·®å¼‚
 cont.matrix<-makeContrasts(treat-con,levels=design)
-#½«¶Ô±È¾ØÕóÓ¦ÓÃÓÚÏÈÇ°ÄâºÏµÄÄ£ĞÍ¡£
+#å°†å¯¹æ¯”çŸ©é˜µåº”ç”¨äºå…ˆå‰æ‹Ÿåˆçš„æ¨¡å‹ã€‚
 fit2 <- contrasts.fit(fit, cont.matrix)
-#Ó¦ÓÃ¾­ÑéBayes·½·¨½øĞĞÍ³¼Æµ÷Õû¡£ÕâÊÇlimma°üÌØÓĞµÄ·½·¨£¬Ëü¿ÉÒÔÌá¸ß²îÒì±í´ï·ÖÎöµÄÍ³¼Æ¹¦Ğ§¡£
+#åº”ç”¨ç»éªŒBayesæ–¹æ³•è¿›è¡Œç»Ÿè®¡è°ƒæ•´ã€‚è¿™æ˜¯limmaåŒ…ç‰¹æœ‰çš„æ–¹æ³•ï¼Œå®ƒå¯ä»¥æé«˜å·®å¼‚è¡¨è¾¾åˆ†æçš„ç»Ÿè®¡åŠŸæ•ˆã€‚
 fit2 <- eBayes(fit2)
-#´ÓÄâºÏ½á¹ûÖĞÌáÈ¡±í´ïµÄ²îÒìĞÔÍ³¼ÆĞÅÏ¢¡£¿¼ÂÇÁË¼Ù·¢ÏÖÂÊ£¨FDR£©Ğ£Õı£¬²¢Ñ¡ÔñÁË×î¶à200,000¸ö²îÒì±í´ïµÄ»ùÒò¡£
+#ä»æ‹Ÿåˆç»“æœä¸­æå–è¡¨è¾¾çš„å·®å¼‚æ€§ç»Ÿè®¡ä¿¡æ¯ã€‚è€ƒè™‘äº†å‡å‘ç°ç‡ï¼ˆFDRï¼‰æ ¡æ­£ï¼Œå¹¶é€‰æ‹©äº†æœ€å¤š200,000ä¸ªå·®å¼‚è¡¨è¾¾çš„åŸºå› ã€‚
 allDiff=topTable(fit2,adjust='fdr',number=200000)
-#½«ÁĞÃû¼Óµ½allDiffÊı¾İ¿òµÄ¶¥²¿£¬ÒÔ´´½¨Ò»¸öĞÂµÄÊı¾İ¿òallDiffOut¡£
+#å°†åˆ—ååŠ åˆ°allDiffæ•°æ®æ¡†çš„é¡¶éƒ¨ï¼Œä»¥åˆ›å»ºä¸€ä¸ªæ–°çš„æ•°æ®æ¡†allDiffOutã€‚
 allDiffOut=rbind(id=colnames(allDiff),allDiff)
-#½«allDiffOutÊı¾İ¿òĞ´ÈëÃûÎª"all.txt"µÄÎÄ¼ş£¬Ê¹ÓÃÖÆ±í·û×÷Îª·Ö¸ô·û£¬²¢±ÜÃâÒıÓÃºÍÁĞÃû¡£
+#å°†allDiffOutæ•°æ®æ¡†å†™å…¥åä¸º"all.txt"çš„æ–‡ä»¶ï¼Œä½¿ç”¨åˆ¶è¡¨ç¬¦ä½œä¸ºåˆ†éš”ç¬¦ï¼Œå¹¶é¿å…å¼•ç”¨å’Œåˆ—åã€‚
 write.table(allDiffOut, file="all.txt", sep="\t", quote=F, col.names=F)
 
-#Êä³ö½ÃÕıºóµÄ±í´ïÁ¿
+#è¾“å‡ºçŸ«æ­£åçš„è¡¨è¾¾é‡
 outData=rbind(id=paste0(colnames(data),"_",Type),data)
 write.table(outData, file="normalize.txt", sep="\t", quote=F, col.names=F)
 
-#Êä³ö²îÒì½á¹û
+#è¾“å‡ºå·®å¼‚ç»“æœ
 diffSig=allDiff[with(allDiff, (abs(logFC)>logFCfilter & adj.P.Val < adj.P.Val.Filter )), ]
 diffSigOut=rbind(id=colnames(diffSig),diffSig)
 write.table(diffSigOut, file="diff.txt", sep="\t", quote=F, col.names=F)
 
-#Êä³ö²îÒì»ùÒò±í´ïÁ¿
+#è¾“å‡ºå·®å¼‚åŸºå› è¡¨è¾¾é‡
 diffGeneExp=data[row.names(diffSig),]
 diffGeneExpOut=rbind(id=paste0(colnames(diffGeneExp),"_",Type), diffGeneExp)
 write.table(diffGeneExpOut, file="diffGeneExp.txt", sep="\t", quote=F, col.names=F)
 
-#»æÖÆ²îÒì»ùÒòÈÈÍ¼
+#ç»˜åˆ¶å·®å¼‚åŸºå› çƒ­å›¾
 geneNum=50
 diffSig=diffSig[order(as.numeric(as.vector(diffSig$logFC))),]
-#ÖØĞÂÅÅĞòdiffSigÊı¾İ¿ò£¬¸ù¾İlogFCÁĞµÄÖµ¡£
+#é‡æ–°æ’åºdiffSigæ•°æ®æ¡†ï¼Œæ ¹æ®logFCåˆ—çš„å€¼ã€‚
 diffGeneName=as.vector(rownames(diffSig))
-#ÌáÈ¡ÅÅĞòºóµÄdiffSigÊı¾İ¿òµÄĞĞÃû£¨¼´»ùÒòÃû£©²¢±£´æÎªÏòÁ¿diffGeneName¡£
+#æå–æ’åºåçš„diffSigæ•°æ®æ¡†çš„è¡Œåï¼ˆå³åŸºå› åï¼‰å¹¶ä¿å­˜ä¸ºå‘é‡diffGeneNameã€‚
 diffLength=length(diffGeneName)
-#¼ÆËãdiffGeneNameÏòÁ¿µÄ³¤¶È£¬Ò²¼´²îÒì»ùÒòµÄÊıÁ¿£¬²¢½«Æä±£´æÔÚdiffLengthÖĞ¡£
+#è®¡ç®—diffGeneNameå‘é‡çš„é•¿åº¦ï¼Œä¹Ÿå³å·®å¼‚åŸºå› çš„æ•°é‡ï¼Œå¹¶å°†å…¶ä¿å­˜åœ¨diffLengthä¸­ã€‚
 hmGene=c()
-#³õÊ¼»¯Ò»¸ö¿ÕµÄÏòÁ¿hmGene£¬½«ÓÃÓÚ±£´æ½«ÒªÔÚÈÈÍ¼ÖĞÏÔÊ¾µÄ»ùÒòÃû¡£
+#åˆå§‹åŒ–ä¸€ä¸ªç©ºçš„å‘é‡hmGeneï¼Œå°†ç”¨äºä¿å­˜å°†è¦åœ¨çƒ­å›¾ä¸­æ˜¾ç¤ºçš„åŸºå› åã€‚
 if(diffLength>(2*geneNum)){
     hmGene=diffGeneName[c(1:geneNum,(diffLength-geneNum+1):diffLength)]
 }else{
     hmGene=diffGeneName
 }
-#Èç¹û²îÒì»ùÒòµÄÊıÁ¿´óÓÚÁ½±¶µÄgeneNum£¨Ò²¾ÍÊÇ100£©£¬ÄÇÃ´´Ó²îÒì»ùÒòÖĞÑ¡ÔñÇ°50¸öºÍºó50¸ö¡£·ñÔò£¬Ñ¡ÔñËùÓĞ²îÒì»ùÒò¡£
+#å¦‚æœå·®å¼‚åŸºå› çš„æ•°é‡å¤§äºä¸¤å€çš„geneNumï¼ˆä¹Ÿå°±æ˜¯100ï¼‰ï¼Œé‚£ä¹ˆä»å·®å¼‚åŸºå› ä¸­é€‰æ‹©å‰50ä¸ªå’Œå50ä¸ªã€‚å¦åˆ™ï¼Œé€‰æ‹©æ‰€æœ‰å·®å¼‚åŸºå› ã€‚
 hmExp=data[hmGene,]
-#´ÓÔ­Ê¼Êı¾İÖĞÌáÈ¡½«ÒªÔÚÈÈÍ¼ÖĞÕ¹Ê¾µÄ»ùÒòµÄ±í´ïÖµ£¬²¢±£´æÔÚhmExpÖĞ¡£
+#ä»åŸå§‹æ•°æ®ä¸­æå–å°†è¦åœ¨çƒ­å›¾ä¸­å±•ç¤ºçš„åŸºå› çš„è¡¨è¾¾å€¼ï¼Œå¹¶ä¿å­˜åœ¨hmExpä¸­ã€‚
 Type=c(rep("Con",conNum),rep("Treat",treatNum))
 names(Type)=colnames(data)
-#ÎªTypeÏòÁ¿ÉèÖÃÃû×Ö£¬ÕâĞ©Ãû×ÖÀ´×ÔdataµÄÁĞÃû¡£
+#ä¸ºTypeå‘é‡è®¾ç½®åå­—ï¼Œè¿™äº›åå­—æ¥è‡ªdataçš„åˆ—åã€‚
 Type=as.data.frame(Type)
-#½«TypeÏòÁ¿×ª»»ÎªÊı¾İ¿ò¡£
+#å°†Typeå‘é‡è½¬æ¢ä¸ºæ•°æ®æ¡†ã€‚
 pdf(file="heatmap.pdf", width=10, height=8)
-#ÉèÖÃÊä³öÍ¼ĞÎÉè±¸ÎªPDF£¬²¢Ö¸¶¨Êä³öÎÄ¼şÃû£¬²¢ÉèÖÃ¿í¶ÈºÍ¸ß¶È¡£
-#Ê¹ÓÃpheatmapº¯ÊıÉú³ÉÈÈÍ¼¡£
+#è®¾ç½®è¾“å‡ºå›¾å½¢è®¾å¤‡ä¸ºPDFï¼Œå¹¶æŒ‡å®šè¾“å‡ºæ–‡ä»¶åï¼Œå¹¶è®¾ç½®å®½åº¦å’Œé«˜åº¦ã€‚
+#ä½¿ç”¨pheatmapå‡½æ•°ç”Ÿæˆçƒ­å›¾ã€‚
 pheatmap(hmExp, 
          annotation=Type, 
          color = colorRampPalette(c("blue", "white", "red"))(50),
@@ -136,12 +140,12 @@ pheatmap(hmExp,
          fontsize = 8,
          fontsize_row=7,
          fontsize_col=8)
-#hmExp£ºÒªÏÔÊ¾µÄÊı¾İ
-#annotation=Type£ºÎªÃ¿Ò»ÁĞÌí¼Ó×¢ÊÍ£¨¼´"Con"»ò"Treat"£©
-#color£ºÉèÖÃÑÕÉ«·½°¸£¬´ÓÀ¶É«µ½°×É«£¬ÔÙµ½ºìÉ«
-#cluster_cols=F£º²»¶ÔÁĞ½øĞĞ¾ÛÀà
-#show_colnames=F£º²»ÏÔÊ¾ÁĞÃû
-#scale="row"£º°´ĞĞ½øĞĞËõ·Å£¬Ê¹Ã¿Ò»ĞĞµÄÖµ¾ßÓĞÏàÍ¬µÄ¾ùÖµºÍ±ê×¼²î
-#fontsize¡¢fontsize_rowºÍfontsize_col£ºÉèÖÃ×ÖÌå´óĞ¡		 
+#hmExpï¼šè¦æ˜¾ç¤ºçš„æ•°æ®
+#annotation=Typeï¼šä¸ºæ¯ä¸€åˆ—æ·»åŠ æ³¨é‡Šï¼ˆå³"Con"æˆ–"Treat"ï¼‰
+#colorï¼šè®¾ç½®é¢œè‰²æ–¹æ¡ˆï¼Œä»è“è‰²åˆ°ç™½è‰²ï¼Œå†åˆ°çº¢è‰²
+#cluster_cols=Fï¼šä¸å¯¹åˆ—è¿›è¡Œèšç±»
+#show_colnames=Fï¼šä¸æ˜¾ç¤ºåˆ—å
+#scale="row"ï¼šæŒ‰è¡Œè¿›è¡Œç¼©æ”¾ï¼Œä½¿æ¯ä¸€è¡Œçš„å€¼å…·æœ‰ç›¸åŒçš„å‡å€¼å’Œæ ‡å‡†å·®
+#fontsizeã€fontsize_rowå’Œfontsize_colï¼šè®¾ç½®å­—ä½“å¤§å°		 
 dev.off()
-#¹Ø±Õµ±Ç°µÄÍ¼ĞÎÉè±¸
+#å…³é—­å½“å‰çš„å›¾å½¢è®¾å¤‡
