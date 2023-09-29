@@ -2,39 +2,39 @@
 #install.packages("ggplot2")
 #install.packages("ggrepel")
 
-#ÒıÓÃ°ü
+#å¼•ç”¨åŒ…
 library(dplyr)
 library(ggplot2)
 library(ggrepel)
 
-logFCfilter=2               #logFC¹ıÂËÌõ¼ş
-adj.P.Val.Filter=0.05       #½ÃÕıºóµÄpÖµ¹ıÂËÌõ¼ş
-inputFile="all.txt"         #ÊäÈëÎÄ¼ş
-setwd("C:\\biowolf\\Diagnostic\\07.vol")       #ÉèÖÃ¹¤×÷Ä¿Â¼
+logFCfilter=1               #logFCè¿‡æ»¤æ¡ä»¶
+adj.P.Val.Filter=0.05       #çŸ«æ­£åçš„på€¼è¿‡æ»¤æ¡ä»¶
+inputFile="all.txt"         #è¾“å…¥æ–‡ä»¶
+setwd("C:\\biowolf\\Diagnostic\\07.vol")       #è®¾ç½®å·¥ä½œç›®å½•
 
-#¶ÁÈ¡ÊäÈëÎÄ¼ş
+#è¯»å–è¾“å…¥æ–‡ä»¶
 rt = read.table(inputFile, header=T, sep="\t", check.names=F)
-#¶¨ÒåÏÔÖøĞÔ£º»ùÓÚadj.P.ValºÍlogFCµÄãĞÖµ´´½¨Ò»¸öĞÂ±äÁ¿Sig£¬ÓÃÓÚ±íÊ¾»ùÒòÊÇ·ñÉÏµ÷¡¢ÏÂµ÷»¹ÊÇ²»ÏÔÖø¡£
+#å®šä¹‰æ˜¾è‘—æ€§ï¼šåŸºäºadj.P.Valå’ŒlogFCçš„é˜ˆå€¼åˆ›å»ºä¸€ä¸ªæ–°å˜é‡Sigï¼Œç”¨äºè¡¨ç¤ºåŸºå› æ˜¯å¦ä¸Šè°ƒã€ä¸‹è°ƒè¿˜æ˜¯ä¸æ˜¾è‘—ã€‚
 Sig=ifelse((rt$adj.P.Val<adj.P.Val.Filter) & (abs(rt$logFC)>logFCfilter), ifelse(rt$logFC>logFCfilter,"Up","Down"), "Not")
 
-#»æÖÆ»ğÉ½Í¼
-rt = mutate(rt, Sig=Sig)#Ê¹ÓÃmutateº¯Êı£¨À´×Ôdplyr°ü£©½«ĞÂ´´½¨µÄSigÁĞÌí¼Óµ½Êı¾İ¿òrtÖĞ¡£
-#Ê¹ÓÃggplot2°ü´´½¨»ğÉ½Í¼¡£ÆäÖĞ£º
-#aes(logFC, -log10(adj.P.Val))£ºÉè¶¨xÖáÎªlogFC£¬yÖáÎª-log10(adj.P.Val)¡£
-#geom_point(aes(col=Sig))£º»æÖÆµã£¬²¢¸ù¾İSigÁĞÎªµãÉÏÉ«¡£
-#scale_color_manual£ºÊÖ¶¯ÎªµãÉè¶¨ÑÕÉ«¡£
-#labsºÍtheme£ºÉèÖÃÍ¼µÄ±êÌâºÍÑùÊ½¡£
+#ç»˜åˆ¶ç«å±±å›¾
+rt = mutate(rt, Sig=Sig)#ä½¿ç”¨mutateå‡½æ•°ï¼ˆæ¥è‡ªdplyråŒ…ï¼‰å°†æ–°åˆ›å»ºçš„Sigåˆ—æ·»åŠ åˆ°æ•°æ®æ¡†rtä¸­ã€‚
+#ä½¿ç”¨ggplot2åŒ…åˆ›å»ºç«å±±å›¾ã€‚å…¶ä¸­ï¼š
+#aes(logFC, -log10(adj.P.Val))ï¼šè®¾å®šxè½´ä¸ºlogFCï¼Œyè½´ä¸º-log10(adj.P.Val)ã€‚
+#geom_point(aes(col=Sig))ï¼šç»˜åˆ¶ç‚¹ï¼Œå¹¶æ ¹æ®Sigåˆ—ä¸ºç‚¹ä¸Šè‰²ã€‚
+#scale_color_manualï¼šæ‰‹åŠ¨ä¸ºç‚¹è®¾å®šé¢œè‰²ã€‚
+#labså’Œthemeï¼šè®¾ç½®å›¾çš„æ ‡é¢˜å’Œæ ·å¼ã€‚
 p = ggplot(rt, aes(logFC, -log10(adj.P.Val)))+
     geom_point(aes(col=Sig))+
     scale_color_manual(values=c("green", "black","red"))+
     labs(title = " ")+
     theme(plot.title = element_text(size = 16, hjust = 0.5, face = "bold"))
-#ÔÚ»ğÉ½Í¼ÉÏÎªÏÔÖøµÄ»ùÒòÌí¼Ó±êÇ©¡£Ê¹ÓÃgeom_label_repel£¨À´×Ôggrepel°ü£©È·±£±êÇ©Ö®¼ä²»ÖØµş¡£
-#¶ÔÓÚ²îÒìÏÔÖøµÄ»ùÒò£¬±ê×¢»ùÒòµÄÃû³Æ
+#åœ¨ç«å±±å›¾ä¸Šä¸ºæ˜¾è‘—çš„åŸºå› æ·»åŠ æ ‡ç­¾ã€‚ä½¿ç”¨geom_label_repelï¼ˆæ¥è‡ªggrepelåŒ…ï¼‰ç¡®ä¿æ ‡ç­¾ä¹‹é—´ä¸é‡å ã€‚
+#å¯¹äºå·®å¼‚æ˜¾è‘—çš„åŸºå› ï¼Œæ ‡æ³¨åŸºå› çš„åç§°
 p1=p+geom_label_repel(data=filter(rt, ((rt$adj.P.Val<adj.P.Val.Filter) & (abs(rt$logFC)>logFCfilter))),
                     box.padding=0.1, point.padding=0.1, min.segment.length=0.05,
                     size=1.8, aes(label=id)) + theme_bw()
-#Êä³ö»ğÉ½Í¼
+#è¾“å‡ºç«å±±å›¾
 pdf(file="vol.pdf", width=7, height=6.1)
 print(p1)
 dev.off()
