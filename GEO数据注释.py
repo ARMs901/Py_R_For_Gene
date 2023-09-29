@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 
-# 定义输入文件的路径
+# 定义输入文件路径
 ann_file_path = "D:/BaiduNetdiskDownload/Diagnostic_video/136Diagnostic/04.ann/GPL19833/ann.xlsx"
 probe_file_path = "D:/BaiduNetdiskDownload/Diagnostic_video/136Diagnostic/04.ann/GPL19833/probe.xlsx"
 
