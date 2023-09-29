@@ -6,50 +6,49 @@
 #BiocManager::install("clusterProfiler")
 #BiocManager::install("enrichplot")
 
-
-#ÒıÓÃ°ü
+#å¼•ç”¨åŒ…
 library(limma)
 library(org.Hs.eg.db)
 library(clusterProfiler)
 library(enrichplot)
 
-inputFile="all.txt"         								   #ÊäÈëÎÄ¼ş
-gmtFile="c2.cp.kegg.v7.4.symbols.gmt"      					   #»ùÒò¼¯ÎÄ¼ş
-setwd("C:\\biowolf\\Diagnostic\\11.GSEA")      				   #ÉèÖÃ¹¤×÷Ä¿Â¼
+inputFile="all.txt"         								   #è¾“å…¥æ–‡ä»¶
+gmtFile="c2.cp.kegg.v7.4.symbols.gmt"      					   #åŸºå› é›†æ–‡ä»¶
+setwd("C:\\biowolf\\Diagnostic\\11.GSEA")      				   #è®¾ç½®å·¥ä½œç›®å½•
 
-# ¶ÁÈ¡ÊäÈëÎÄ¼ş²¢¶ÔÆä½øĞĞÕûÀí
-rt = read.table(inputFile, header=T, sep="\t", check.names=F)  # ¶ÁÈ¡ÊäÈëÎÄ¼şÎªÊı¾İ¿ò
-logFC = as.vector(rt[,2])                                      # ÌáÈ¡µÚ¶şÁĞ£¨logFCÖµ£©ÎªÏòÁ¿
-names(logFC) = as.vector(rt[,1])                               # ½«µÚÒ»ÁĞÉèÖÃÎªlogFCÏòÁ¿µÄÃû×Ö
-logFC = sort(logFC, decreasing=T)                              # ¶ÔlogFCÖµ½øĞĞ½µĞòÅÅĞò
+# è¯»å–è¾“å…¥æ–‡ä»¶å¹¶å¯¹å…¶è¿›è¡Œæ•´ç†
+rt = read.table(inputFile, header=T, sep="\t", check.names=F)  # è¯»å–è¾“å…¥æ–‡ä»¶ä¸ºæ•°æ®æ¡†
+logFC = as.vector(rt[,2])                                      # æå–ç¬¬äºŒåˆ—ï¼ˆlogFCå€¼ï¼‰ä¸ºå‘é‡
+names(logFC) = as.vector(rt[,1])                               # å°†ç¬¬ä¸€åˆ—è®¾ç½®ä¸ºlogFCå‘é‡çš„åå­—
+logFC = sort(logFC, decreasing=T)                              # å¯¹logFCå€¼è¿›è¡Œé™åºæ’åº
 
-# ¶ÁÈë»ùÒò¼¯ÎÄ¼ş
-gmt = read.gmt(gmtFile)                                        # Ê¹ÓÃread.gmtº¯Êı¶ÁÈ¡gmtÎÄ¼ş
+# è¯»å…¥åŸºå› é›†æ–‡ä»¶
+gmt = read.gmt(gmtFile)                                        # ä½¿ç”¨read.gmtå‡½æ•°è¯»å–gmtæ–‡ä»¶
 
-# ½øĞĞ¸»¼¯·ÖÎö
-kk = GSEA(logFC, TERM2GENE=gmt, pvalueCutoff = 1)              # ¶ÔlogFCÏòÁ¿½øĞĞGSEA¸»¼¯·ÖÎö
-kkTab = as.data.frame(kk)                                      # ½«½á¹û×ª»¯ÎªÊı¾İ¿ò
-kkTab = kkTab[kkTab$p.adjust<0.05,]                            # Ñ¡ÔñÄÇĞ©µ÷ÕûºóµÄpÖµĞ¡ÓÚ0.05µÄĞĞ
-write.table(kkTab, file="GSEA.result.txt", sep="\t", quote=F, row.names = F)  # ½«É¸Ñ¡ºóµÄ½á¹ûĞ´ÈëtxtÎÄ¼ş
+# è¿›è¡Œå¯Œé›†åˆ†æ
+kk = GSEA(logFC, TERM2GENE=gmt, pvalueCutoff = 1)              # å¯¹logFCå‘é‡è¿›è¡ŒGSEAå¯Œé›†åˆ†æ
+kkTab = as.data.frame(kk)                                      # å°†ç»“æœè½¬åŒ–ä¸ºæ•°æ®æ¡†
+kkTab = kkTab[kkTab$p.adjust<0.05,]                            # é€‰æ‹©é‚£äº›è°ƒæ•´åçš„på€¼å°äº0.05çš„è¡Œ
+write.table(kkTab, file="GSEA.result.txt", sep="\t", quote=F, row.names = F)  # å°†ç­›é€‰åçš„ç»“æœå†™å…¥txtæ–‡ä»¶
 
-# Êä³öÊµÑé×é¸»¼¯µÄÍ¼ĞÎ
-termNum = 5                                                    # ÉèÖÃÒªÕ¹Ê¾µÄÍ¨Â·ÊıÄ¿Îª5
-kkUp = kkTab[kkTab$NES>0,]                                     # Ñ¡ÔñÕıµÄ¹éÒ»»¯¸»¼¯µÃ·Ö£¨´ú±íÔÚÊµÑé×éÖĞ¸»¼¯£©
-if(nrow(kkUp) >= termNum){                                     # Èç¹ûÂú×ãµÄÍ¨Â·ÊıÄ¿´óÓÚ»òµÈÓÚ5
-    showTerm = row.names(kkUp)[1:termNum]                      # Ñ¡ÔñÇ°5¸öÍ¨Â·
-    gseaplot = gseaplot2(kk, showTerm, base_size=8, title="Enriched in Treat")  # Ê¹ÓÃgseaplot2»æÖÆ¸»¼¯Í¼
-    pdf(file="GSEA.treat.pdf", width=7, height=5.5)            # ÉèÖÃÊä³öÎªPDF¸ñÊ½
-    print(gseaplot)                                            # Êä³öÍ¼ĞÎ
-    dev.off()                                                  # ¹Ø±ÕÍ¼ĞÎÉè±¸
+# è¾“å‡ºå®éªŒç»„å¯Œé›†çš„å›¾å½¢
+termNum = 5                                                    # è®¾ç½®è¦å±•ç¤ºçš„é€šè·¯æ•°ç›®ä¸º5
+kkUp = kkTab[kkTab$NES>0,]                                     # é€‰æ‹©æ­£çš„å½’ä¸€åŒ–å¯Œé›†å¾—åˆ†ï¼ˆä»£è¡¨åœ¨å®éªŒç»„ä¸­å¯Œé›†ï¼‰
+if(nrow(kkUp) >= termNum){                                     # å¦‚æœæ»¡è¶³çš„é€šè·¯æ•°ç›®å¤§äºæˆ–ç­‰äº5
+    showTerm = row.names(kkUp)[1:termNum]                      # é€‰æ‹©å‰5ä¸ªé€šè·¯
+    gseaplot = gseaplot2(kk, showTerm, base_size=8, title="Enriched in Treat")  # ä½¿ç”¨gseaplot2ç»˜åˆ¶å¯Œé›†å›¾
+    pdf(file="GSEA.treat.pdf", width=7, height=5.5)            # è®¾ç½®è¾“å‡ºä¸ºPDFæ ¼å¼
+    print(gseaplot)                                            # è¾“å‡ºå›¾å½¢
+    dev.off()                                                  # å…³é—­å›¾å½¢è®¾å¤‡
 }
 
-# Êä³öÕı³£×é¸»¼¯µÄÍ¼ĞÎ
-termNum = 5                                                    # ÉèÖÃÒªÕ¹Ê¾µÄÍ¨Â·ÊıÄ¿Îª5
-kkDown = kkTab[kkTab$NES<0,]                                   # Ñ¡Ôñ¸ºµÄ¹éÒ»»¯¸»¼¯µÃ·Ö£¨´ú±íÔÚÕı³£×éÖĞ¸»¼¯£©
-if(nrow(kkDown) >= termNum){                                   # Èç¹ûÂú×ãµÄÍ¨Â·ÊıÄ¿´óÓÚ»òµÈÓÚ5
-    showTerm = row.names(kkDown)[1:termNum]                    # Ñ¡ÔñÇ°5¸öÍ¨Â·
-    gseaplot = gseaplot2(kk, showTerm, base_size=8, title="Enriched in Control")  # Ê¹ÓÃgseaplot2»æÖÆ¸»¼¯Í¼
-    pdf(file="GSEA.con.pdf", width=7, height=5.5)              # ÉèÖÃÊä³öÎªPDF¸ñÊ½
-    print(gseaplot)                                            # Êä³öÍ¼ĞÎ
-    dev.off()                                                  # ¹Ø±ÕÍ¼ĞÎÉè±¸
+# è¾“å‡ºæ­£å¸¸ç»„å¯Œé›†çš„å›¾å½¢
+termNum = 5                                                    # è®¾ç½®è¦å±•ç¤ºçš„é€šè·¯æ•°ç›®ä¸º5
+kkDown = kkTab[kkTab$NES<0,]                                   # é€‰æ‹©è´Ÿçš„å½’ä¸€åŒ–å¯Œé›†å¾—åˆ†ï¼ˆä»£è¡¨åœ¨æ­£å¸¸ç»„ä¸­å¯Œé›†ï¼‰
+if(nrow(kkDown) >= termNum){                                   # å¦‚æœæ»¡è¶³çš„é€šè·¯æ•°ç›®å¤§äºæˆ–ç­‰äº5
+    showTerm = row.names(kkDown)[1:termNum]                    # é€‰æ‹©å‰5ä¸ªé€šè·¯
+    gseaplot = gseaplot2(kk, showTerm, base_size=8, title="Enriched in Control")  # ä½¿ç”¨gseaplot2ç»˜åˆ¶å¯Œé›†å›¾
+    pdf(file="GSEA.con.pdf", width=7, height=5.5)              # è®¾ç½®è¾“å‡ºä¸ºPDFæ ¼å¼
+    print(gseaplot)                                            # è¾“å‡ºå›¾å½¢
+    dev.off()                                                  # å…³é—­å›¾å½¢è®¾å¤‡
 }
