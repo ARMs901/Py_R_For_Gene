@@ -1,4 +1,3 @@
-
 #install.packages("ggplot2")
 #install.packages("ggrepel")
 
@@ -38,5 +37,3 @@ p1=p+geom_label_repel(data=filter(rt, ((rt$adj.P.Val<adj.P.Val.Filter) & (abs(rt
 pdf(file="vol.pdf", width=7, height=6.1)
 print(p1)
 dev.off()
-
-
