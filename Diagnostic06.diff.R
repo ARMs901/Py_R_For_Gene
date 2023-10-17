@@ -8,7 +8,7 @@ library(limma)
 library(pheatmap)
 
 inputFile="merge.txt"       #输入文件
-logFCfilter=2               #logFC过滤阈值
+logFCfilter=1               #logFC过滤阈值
 adj.P.Val.Filter=0.05       #矫正后p值阈值
 setwd("C:\\biowolf\\Diagnostic\\06.diff")      #设置工作目录
 
