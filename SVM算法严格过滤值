@@ -1,0 +1,61 @@
+import pandas as pd
+import numpy as np
+from sklearn.feature_selection import RFECV
+from sklearn.svm import SVC
+from sklearn.model_selection import StratifiedKFold
+import matplotlib.pyplot as plt
+
+def perform_svm_rfe_updated(data_path, image_save_path, features_save_path, regularization_strength=1):
+    # 使用pandas的read_csv函数从指定的路径加载数据文件。
+    data = pd.read_csv(data_path, sep="\t", index_col=0)
+    data_transposed = data.transpose()
+
+    # 提取样本类型
+    labels = data_transposed.index.str.split("_").str[-1]
+    numeric_labels = np.where(labels == "con", 0, 1)
+
+    # 初始化线性支持向量机（SVM）分类器，添加正则化参数
+    svc_linear = SVC(kernel="linear", C=regularization_strength)
+
+    min_features_to_select = 1
+    rfecv_linear = RFECV(estimator=svc_linear, step=0.05, cv=StratifiedKFold(5), scoring="accuracy", min_features_to_select=min_features_to_select)
+    rfecv_linear.fit(data_transposed, numeric_labels)
+
+    mean_scores = rfecv_linear.cv_results_['mean_test_score']
+
+    # 绘图
+    plt.figure(figsize=(8, 6))
+    plt.plot(range(1, len(mean_scores) + 1), mean_scores, color="darkgreen", label="Mean Accuracy")
+    optimal_num_features = np.argmax(mean_scores) + 1
+    plt.axvline(x=optimal_num_features, linestyle="--", color="blue", label=f"Optimal number of features = {optimal_num_features}")
+    plt.xlabel("Number of Features")
+    plt.ylabel("Mean Cross-Validation Accuracy")
+    plt.title("SVM-RFE Feature Selection with Regularization")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig(image_save_path)
+    plt.close()
+
+    # 从RFECV对象中提取选定的特征。
+    selected_features = data_transposed.columns[rfecv_linear.support_].tolist()
+
+    # 使用SVM的coef_属性进一步筛选特征
+    feature_weights = np.abs(rfecv_linear.estimator_.coef_[0])  # 取权重的绝对值
+    weight_threshold = np.percentile(feature_weights, 70)  # 设置权重阈值为前?%的权重
+    final_selected_features = [feature for idx, feature in enumerate(selected_features) if feature_weights[idx] > weight_threshold]
+
+    # 保存选定的特征
+    with open(features_save_path, 'w') as file:
+        for feature in final_selected_features:
+            file.write(f"{feature}\n")
+
+    return final_selected_features
+
+# 替换以下路径为实际文件路径
+data_path = "C:/Users/MOMO/OneDrive/桌面/机器学习数据重做/UC数据/SVM/diffGeneExp.txt"
+image_save_path = "C:/Users/MOMO/OneDrive/桌面/机器学习数据重做/UC数据/SVM/SVM-RFE.pdf"
+features_save_path = "C:/Users/MOMO/OneDrive/桌面/机器学习数据重做/UC数据/SVM/SVM-RFE_selected_features.txt"
+
+# 调用函数，可以尝试不同的正则化强度
+selected_features = perform_svm_rfe_updated(data_path, image_save_path, features_save_path, regularization_strength=0.1)
