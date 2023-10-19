@@ -1,42 +1,42 @@
-# Èç¹û»¹Ã»ÓÐ°²×°pROC°ü£¬ÔòÐèÒªÏÈ°²×°
+# å¦‚æžœè¿˜æ²¡æœ‰å®‰è£…pROCåŒ…ï¼Œåˆ™éœ€è¦å…ˆå®‰è£…
 # install.packages("pROC")
 
-# ÒýÓÃpROC°ü£¬Ëü°üº¬ÓÃÓÚ»æÖÆºÍ¼ÆËãROCÇúÏßµÄº¯Êý
+# å¼•ç”¨pROCåŒ…ï¼Œå®ƒåŒ…å«ç”¨äºŽç»˜åˆ¶å’Œè®¡ç®—ROCæ›²çº¿çš„å‡½æ•°
 library(pROC)                     
 
-# ¶¨Òå±í´ïÊý¾ÝÎÄ¼þºÍ½»¼¯»ùÒòÁÐ±íÎÄ¼þµÄÂ·¾¶
+# å®šä¹‰è¡¨è¾¾æ•°æ®æ–‡ä»¶å’Œäº¤é›†åŸºå› åˆ—è¡¨æ–‡ä»¶çš„è·¯å¾„
 expFile="test.normalize.txt"      
 geneFile="intersected_genes.txt"         
 
-# ÉèÖÃ¹¤×÷Ä¿Â¼£¬Õâ½«¾ö¶¨ºóÐøÎÄ¼þµÄ¶ÁÐ´Î»ÖÃ
+# è®¾ç½®å·¥ä½œç›®å½•ï¼Œè¿™å°†å†³å®šåŽç»­æ–‡ä»¶çš„è¯»å†™ä½ç½®
 setwd("D:\\BaiduNetdiskDownload\\Diagnostic_video\\136Diagnostic\\17.testROC\\U_D")    
 
-# ´Ó±í´ïÊý¾ÝÎÄ¼þ¶ÁÈ¡Êý¾Ý
+# ä»Žè¡¨è¾¾æ•°æ®æ–‡ä»¶è¯»å–æ•°æ®
 rt=read.table(expFile, header=T, sep="\t", check.names=F, row.names=1)
 
-# ´ÓÁÐÃûÖÐÌáÈ¡Ñù±¾ÀàÐÍ£¨ÀýÈç£º"con"£©£¬²¢½«Æä×ª»»Îª¶þ½øÖÆÖµ£¨0»ò1£©
+# ä»Žåˆ—åä¸­æå–æ ·æœ¬ç±»åž‹ï¼ˆä¾‹å¦‚ï¼š"con"ï¼‰ï¼Œå¹¶å°†å…¶è½¬æ¢ä¸ºäºŒè¿›åˆ¶å€¼ï¼ˆ0æˆ–1ï¼‰
 y=gsub("(.*)\\_(.*)", "\\2", colnames(rt))
 y=ifelse(y=="con", 0, 1)
 
-# ´Ó½»¼¯»ùÒòÎÄ¼þÖÐ¶ÁÈ¡»ùÒòÁÐ±í
+# ä»Žäº¤é›†åŸºå› æ–‡ä»¶ä¸­è¯»å–åŸºå› åˆ—è¡¨
 geneRT=read.table(geneFile, header=F, sep="\t", check.names=F)
 
-# ±éÀú½»¼¯»ùÒòÁÐ±í£¬ÎªÃ¿¸ö»ùÒò»æÖÆROCÇúÏß
+# éåŽ†äº¤é›†åŸºå› åˆ—è¡¨ï¼Œä¸ºæ¯ä¸ªåŸºå› ç»˜åˆ¶ROCæ›²çº¿
 for(x in as.vector(geneRT[,1])){
-    # Ê¹ÓÃy£¨Ñù±¾ÀàÐÍ£©ºÍrt[x,]£¨»ùÒò±í´ïÊý¾Ý£©¼ÆËãROC
+    # ä½¿ç”¨yï¼ˆæ ·æœ¬ç±»åž‹ï¼‰å’Œrt[x,]ï¼ˆåŸºå› è¡¨è¾¾æ•°æ®ï¼‰è®¡ç®—ROC
     roc1=roc(y, as.numeric(rt[x,]))
     
-    # ¼ÆËãROCÇúÏßÏÂÃæ»ý£¨AUC£©µÄÖÃÐÅÇø¼ä
+    # è®¡ç®—ROCæ›²çº¿ä¸‹é¢ç§¯ï¼ˆAUCï¼‰çš„ç½®ä¿¡åŒºé—´
     ci1=ci.auc(roc1, method="bootstrap")
     ciVec=as.numeric(ci1)
     
-    # Îªµ±Ç°»ùÒò±£´æROCÇúÏßµ½PDFÎÄ¼þ
+    # ä¸ºå½“å‰åŸºå› ä¿å­˜ROCæ›²çº¿åˆ°PDFæ–‡ä»¶
     pdf(file=paste0("ROC.",x,".pdf"), width=5, height=5)
     
-    # »æÖÆROCÇúÏß£¬²¢ÔÚÍ¼ÉÏÏÔÊ¾AUCÖµºÍÖÃÐÅÇø¼ä
+    # ç»˜åˆ¶ROCæ›²çº¿ï¼Œå¹¶åœ¨å›¾ä¸Šæ˜¾ç¤ºAUCå€¼å’Œç½®ä¿¡åŒºé—´
     plot(roc1, print.auc=TRUE, col="red", legacy.axes=T, main=x)
     text(0.39, 0.43, paste0("95% CI: ",sprintf("%.03f",ciVec[1]),"-",sprintf("%.03f",ciVec[3])), col="red")
     
-    # ¹Ø±ÕPDFÉè±¸
+    # å…³é—­PDFè®¾å¤‡
     dev.off()
 }
