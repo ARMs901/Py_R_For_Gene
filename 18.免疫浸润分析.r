@@ -5,11 +5,12 @@ CoreAlg <- function(X, y){
   
   # 定义一个内部函数，用于为给定的 i 返回相应的 nu 值
   res <- function(i){
-    if(i==1){nus <- 0.25}
-    if(i==2){nus <- 0.5}
-    if(i==3){nus <- 0.75}
+    nus <- 0 # 为 nus 设置一个默认值
+    if(i == 1) {nus <- 0.25}
+    if(i == 2) {nus <- 0.5}
+    if(i == 3) {nus <- 0.75}
     # 使用给定的 nu 值训练 SVM 模型
-    model<-svm(X,y,type="nu-regression",kernel="linear",nu=nus,scale=F)
+    model <- svm(X, y, type="nu-regression", kernel="linear", nu=nus, scale=F)
     return(model)
   }
   
@@ -21,17 +22,17 @@ CoreAlg <- function(X, y){
   }
   
   # 初始化存储结果的向量
-  nusvm <- rep(0,svn_itor)
-  corrv <- rep(0,svn_itor)
+  nusvm <- rep(0, svn_itor)
+  corrv <- rep(0, svn_itor)
   t <- 1
   while(t <= svn_itor) {
     # 计算权重
     weights = t(out[[t]]$coefs) %*% out[[t]]$SV
-    weights[which(weights<0)]<-0
-    w<-weights/sum(weights)
+    weights[which(weights < 0)] <- 0
+    w <- weights / sum(weights)
     
     # 计算 k
-    u <- sweep(X,MARGIN=2,w,'*')
+    u <- sweep(X, MARGIN=2, w, '*')
     k <- apply(u, 1, sum)
     
     # 计算均方根误差和相关性
@@ -43,8 +44,8 @@ CoreAlg <- function(X, y){
   mn <- which.min(rmses)
   model <- out[[mn]]
   q <- t(model$coefs) %*% model$SV
-  q[which(q<0)]<-0
-  w <- (q/sum(q))
+  q[which(q < 0)] <- 0
+  w <- (q / sum(q))
   mix_rmse <- rmses[mn]
   mix_r <- corrv[mn]
   return(list("w" = w, "mix_rmse" = mix_rmse, "mix_r" = mix_r))
@@ -115,8 +116,8 @@ CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
   X <- (X - mean(X)) / sd(as.vector(X))
   
   # 如果指定了置换次数，则执行置换测试
-  if(P > 0) {
-    nulldist <- sort(doPerm(P, X, Y)$dist)
+  if(perm > 0) {
+    nulldist <- sort(doPerm(perm, X, Y)$dist)
   }
   
   header <- c('Mixture',colnames(X),"P-value","Correlation","RMSE")
@@ -136,7 +137,7 @@ CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
     mix_rmse <- result$mix_rmse
     
     # 如果执行了置换测试，则计算 p 值
-    if(P > 0) {
+    if(perm > 0) {
       pval <- 1 - (which.min(abs(nulldist - mix_r)) / length(nulldist))
     }
     
@@ -161,15 +162,18 @@ CIBERSORT <- function(sig_matrix, mixture_file, perm=0, QN=TRUE){
 }
 
 # 设置工作目录
-setwd("D:\\BaiduNetdiskDownload\\Diagnostic_video\\136Diagnostic\\18.CIBERSORT\\U_D")
+setwd("C:\\Users\\MOMO\\OneDrive\\桌面\\机器学习数据重做\\UC数据\\015.CIBERSORT")
 
 # 调用 CIBERSORT 函数
-outTab=CIBERSORT("ref.txt", inputFile, perm=1000, QN=TRUE)
+# 请确保 inputFile 已被定义
+inputFile = "normalize.txt"
+
+outTab <- CIBERSORT("ref.txt", inputFile, perm=1000, QN=TRUE)
 
 # 保留 p 值小于 0.05 的结果
-outTab=outTab[outTab[,"P-value"]<0.05,]
+outTab <- outTab[outTab[,"P-value"] < 0.05,]
 
 # 删除最后三列并将结果写入文件
-outTab=as.matrix(outTab[,1:(ncol(outTab)-3)])
-outTab=rbind(id=colnames(outTab),outTab)
+outTab <- as.matrix(outTab[, 1:(ncol(outTab) - 3)])
+outTab <- rbind(colnames(outTab), outTab) # 使用列名代替未定义的 id
 write.table(outTab, file="CIBERSORT-Results.txt", sep="\t", quote=F, col.names=F)
